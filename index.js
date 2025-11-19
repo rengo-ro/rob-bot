@@ -10,8 +10,8 @@ const AMIGO_ID  = '1098589135838642207';
 const SERVER_ID = '1158525807052992562';
 const CANAL_ID  = '1158525807052992562';
 
-// FORZAMOS LA HORA DE SALIDA DE TU HERMANO AHORA MISMO (19 nov 2025 ~19:26 Argentina)
-salidaTimes.set(AMIGO_ID, Date.now() - 2 * 60 * 1000); // resto 2 minutos para que ya cuente desde ahora
+// FORZAMOS QUE SE SALIÓ HACE EXACTAMENTE 2 DÍAS
+salidaTimes.set(AMIGO_ID, Date.now() - (2 * 24 * 60 * 60 * 1000));
 
 client.once('ready', () => {
     console.log(`${client.user.tag} → ONLINE y esperando al rey 👑`);
