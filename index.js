@@ -4,69 +4,53 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
 });
 
-// Map para guardar el tiempo de salida de tu hermano (clave: ID, valor: fecha de salida)
 const salidaTimes = new Map();
 
-const AMIGO_ID  = '1440711431241596933';  // tu hermano
-const SERVER_ID = '285501442549088256';  // el server
-const CANAL_ID  = '285501442549088256';  // canal del @everyone
- 
+const AMIGO_ID  = '1440711431241596933';
+const SERVER_ID = '285501442549088256';
+const CANAL_ID  = '285501442549088256';
+
+// FORZAMOS LA HORA DE SALIDA DE TU HERMANO AHORA MISMO (19 nov 2025 ~19:26 Argentina)
+salidaTimes.set(AMIGO_ID, Date.now() - 2 * 60 * 1000); // resto 2 minutos para que ya cuente desde ahora
+
 client.once('ready', () => {
     console.log(`${client.user.tag} → ONLINE y esperando al rey 👑`);
+    console.log(`Hora de salida de tu hermano forzada para prueba`);
 });
 
-// CUANDO TU HERMANO SALE DEL SERVIDOR (guardamos el tiempo)
+// Cuando sale (normal)
 client.on('guildMemberRemove', (member) => {
-    if (member.guild.id !== SERVER_ID) return;
-    if (member.id !== AMIGO_ID) return;
-
-    // Guardamos la fecha actual como salida
+    if (member.id !== AMIGO_ID || member.guild.id !== SERVER_ID) return;
     salidaTimes.set(AMIGO_ID, Date.now());
-    console.log(`Tu hermano salió del server. Tiempo guardado.`);
 });
 
-// CUANDO TU HERMANO VUELVE AL SERVIDOR (calculamos el tiempo que se fue)
-client.on('guildMemberAdd', (member) => {
-    if (member.guild.id !== SERVER_ID) return;
-    if (member.id !== AMIGO_ID) return;
+// Cuando vuelve (el que importa)
+client.on('guildMemberAdd', async (member) => {
+    if (member.id !== AMIGO_ID || member.guild.id !== SERVER_ID) return;
 
-    const salidaTime = salidaTimes.get(AMIGO_ID);
-    let tiempoAusente = '';
+    const salidaTime = salidaTimes.get(AMIGO_ID) || (Date.now() - 60000); // fallback 1 min
+    const tiempoSeFue = Date.now() - salidaTime;
 
-    if (salidaTime) {
-        // Calculamos la diferencia en milisegundos
-        const tiempoSeFue = Date.now() - salidaTime;
+    const dias = Math.floor(tiempoSeFue / 86400000);
+    const horas = Math.floor((tiempoSeFue % 86400000) / 3600000);
+    const minutos = Math.floor((tiempoSeFue % 3600000) / 60000);
+    const segundos = Math.floor((tiempoSeFue % 60000) / 1000);
 
-        // Convertimos a días, horas, minutos y segundos
-        const dias = Math.floor(tiempoSeFue / (1000 * 60 * 60 * 24));
-        const horas = Math.floor((tiempoSeFue % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutos = Math.floor((tiempoSeFue % (1000 * 60 * 60)) / (1000 * 60));
-        const segundos = Math.floor((tiempoSeFue % (1000 * 60)) / 1000);
-
-        // Mensaje épico con el tiempo
-        if (dias > 0) tiempoAusente += `${dias}d `;
-        if (horas > 0) tiempoAusente += `${horas}h `;
-        if (minutos > 0) tiempoAusente += `${minutos}m `;
-        if (segundos > 0) tiempoAusente += `${segundos}s`;
-
-        // Si no hay tiempo (recién salió), no muestra nada
-        if (tiempoAusente) {
-            tiempoAusente = ` (se fue por ${tiempoAusente.trim()})`;
-        }
-        salidaTimes.delete(AMIGO_ID);  // Borramos el tiempo guardado
-    } else {
-        tiempoAusente = ' (primera vez o bot reiniciado)';
-    }
+    let tiempoTexto = '';
+    if (dias > 0) tiempoTexto += `${dias}d `;
+    if (horas > 0) tiempoTexto += `${horas}h `;
+    if (minutos > 0) tiempoTexto += `${minutos}m `;
+    tiempoTexto += `${segundos}s`;
 
     const canal = member.guild.channels.cache.get(CANAL_ID);
     if (canal) {
-        canal.send(`@everyone si ${tiempoAusente} `);
+        canal.send(`@everyone **¡EL REY HA REGRESADO!** <@${AMIGO_ID}> después de **${tiempoTexto.trim()}** de ausencia 🔥🔥🔥`);
     }
 
-    console.log(`¡Tu hermano volvió! Se fue por: ${tiempoAusente}`);
+    // Borramos para la próxima
+    salidaTimes.delete(AMIGO_ID);
 });
 
-// Truco para que NO se duerma en Render (importante)
 const http = require('http');
 http.createServer((req, res) => res.end('vivo')).listen(process.env.PORT || 8080);
 
