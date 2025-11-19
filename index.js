@@ -7,8 +7,8 @@ const client = new Client({
 const salidaTimes = new Map();
 
 const AMIGO_ID  = '1440711431241596933';
-const SERVER_ID = '285501442549088256';
-const CANAL_ID  = '285501442549088256';
+const SERVER_ID = '1096564371230036078';
+const CANAL_ID  = '1158525807052992562';
 
 // FORZAMOS LA HORA DE SALIDA DE TU HERMANO AHORA MISMO (19 nov 2025 ~19:26 Argentina)
 salidaTimes.set(AMIGO_ID, Date.now() - 2 * 60 * 1000); // resto 2 minutos para que ya cuente desde ahora
