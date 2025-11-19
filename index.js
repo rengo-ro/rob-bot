@@ -6,7 +6,7 @@ const client = new Client({
 
 const salidaTimes = new Map();
 
-const AMIGO_ID  = '1440711431241596933';
+const AMIGO_ID  = '1098589135838642207';
 const SERVER_ID = '1158525807052992562';
 const CANAL_ID  = '1158525807052992562';
 
@@ -44,7 +44,7 @@ client.on('guildMemberAdd', async (member) => {
 
     const canal = member.guild.channels.cache.get(CANAL_ID);
     if (canal) {
-        canal.send(`@everyone **¡EL REY HA REGRESADO!** <@${AMIGO_ID}> después de **${tiempoTexto.trim()}** de ausencia 🔥🔥🔥`);
+        canal.send(`@everyone Si ${tiempoTexto.trim()}`);
     }
 
     // Borramos para la próxima
