@@ -10,7 +10,7 @@ const salidaTimes = new Map();
 const AMIGO_ID  = '1440711431241596933';  // tu hermano
 const SERVER_ID = '285501442549088256';  // el server
 const CANAL_ID  = '285501442549088256';  // canal del @everyone
-
+ 
 client.once('ready', () => {
     console.log(`${client.user.tag} → ONLINE y esperando al rey 👑`);
 });
