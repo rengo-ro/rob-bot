@@ -7,28 +7,25 @@ const client = new Client({
 const salidaTimes = new Map();
 
 const AMIGO_ID  = '1098589135838642207';
-const SERVER_ID = '1158525807052992562';
+const SERVER_ID = '1158525807052992562';  // ← tu “truco” que funciona perfecto
 const CANAL_ID  = '1158525807052992562';
-
-// FORZAMOS QUE SE SALIÓ HACE EXACTAMENTE 2 DÍAS
-salidaTimes.set(AMIGO_ID, Date.now() - (2 * 24 * 60 * 60 * 1000));
 
 client.once('ready', () => {
     console.log(`${client.user.tag} → ONLINE y esperando al rey 👑`);
-    console.log(`Hora de salida de tu hermano forzada para prueba`);
 });
 
-// Cuando sale (normal)
+// FORZADO: se salió hace exactamente 2 días
+salidaTimes.set(AMIGO_ID, Date.now() - (2 * 24 * 60 * 60 * 1000));
+
 client.on('guildMemberRemove', (member) => {
-    if (member.id !== AMIGO_ID || member.guild.id !== SERVER_ID) return;
+    if (member.id !== AMIGO_ID) return;
     salidaTimes.set(AMIGO_ID, Date.now());
 });
 
-// Cuando vuelve (el que importa)
-client.on('guildMemberAdd', async (member) => {
-    if (member.id !== AMIGO_ID || member.guild.id !== SERVER_ID) return;
+client.on('guildMemberAdd', (member) => {
+    if (member.id !== AMIGO_ID) return;
 
-    const salidaTime = salidaTimes.get(AMIGO_ID) || (Date.now() - 60000); // fallback 1 min
+    const salidaTime = salidaTimes.get(AMIGO_ID);
     const tiempoSeFue = Date.now() - salidaTime;
 
     const dias = Math.floor(tiempoSeFue / 86400000);
@@ -44,14 +41,22 @@ client.on('guildMemberAdd', async (member) => {
 
     const canal = member.guild.channels.cache.get(CANAL_ID);
     if (canal) {
-        canal.send(`@everyone Si ${tiempoTexto.trim()}`);
+        canal.send(`@everyone Si, después de **${tiempoTexto.trim()}** de ausencia`);
     }
 
-    // Borramos para la próxima
     salidaTimes.delete(AMIGO_ID);
 });
 
-const http = require('http');
-http.createServer((req, res) => res.end('vivo')).listen(process.env.PORT || 8080);
+// ANTI-SLEEP DEFINITIVO (funciona con UptimeRobot)
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+    res.status(200).send('<h1>Rey vivo 24/7 👑</h1>');
+});
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log('Anti-sleep activo – nunca más se duerme');
+});
 
 client.login(process.env.TOKEN);
